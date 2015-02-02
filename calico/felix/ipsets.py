@@ -24,56 +24,19 @@ from calico.felix import futils
 from calico.felix.futils import IPV4, IPV6
 
 def swap(name1, name2):
-    """
-    Swap the two ipsets of the supplied names.
-    """
-    return futils.check_call(["ipset", "swap", name1, name2])
+    pass
 
 def flush(name):
-    """
-    Flush an ipset.
-    """
-    futils.check_call(["ipset", "flush", name])
+    pass
 
 def create(name, typename, family):
-    """
-    Create an ipset. If it already exists, do nothing.
-
-    *name* is the name of the ipset.
-    *typename* must be a valid type, such as "hash:net" or "hash:net,port"
-    *family* must be *inet* or *inet6*
-    """
-    if futils.call_silent(["ipset", "list", name]) != 0:
-        # ipset list failed - either does not exist, or an error. Either way,
-        # try creation, throwing an error if it does not work.
-        futils.check_call(["ipset", "create", name, typename, "family", family])
+    pass
 
 def destroy(name):
-    """
-    Destroy an ipset if it exists (and do nothing if not).
-    """
-    if futils.call_silent(["ipset", "list", name]) == 0:
-        futils.check_call(["ipset", "destroy", name])
+    pass
 
 def add(name, value):
-    """
-    Add a value to an ipset.
-    """
-    futils.check_call(["ipset", "add", name, value, "-exist"])
+    pass
 
 def list_names():
-    """
-    List all names of ipsets. Note that this is *not* the same as the ipset
-    list command which lists contents too (hence the name change).
-    """
-    data  = futils.check_call(["ipset", "list"]).stdout
-    lines = data.split("\n")
-
-    names = []
-
-    for line in lines:
-        words = line.split()
-        if (len(words) > 1 and words[0] == "Name:"):
-            names.append(words[1])
-
-    return names
+    return []
