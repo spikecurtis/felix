@@ -9,27 +9,6 @@ router id @MY_IPV4_ADDRESS@;
 ## @AS_NUMBER@:@ADVERT@ - advertise it
 
 
-filter tag_direct {
-# The ifname if match will match any route from a "calico advertisable interface"
-# and tag it with the advertise community string.  All other routes will also be 
-# accepted, but will be taged with the no advertise string
-# We start off unsetting all community strings on the route as a safety measure.
-# 
-# Update the ifname list if we have more interface types in Calico.  The dummy1
-# match is important.  There are "loopback" addresses we may want to advertise,
-# and those we don't.  Therefore, a loopback address that shouldn't be advertised
-# should be aliases on dummy0, and those that should be advertised are aliases
-# on dummy1.
-
-bgp_community.empty;
-if ( (ifname ~ "tap*") || (ifname ~ "veth*") || (ifname = "dummy1") ) then 
-   {
-	bgp_community.add ((@AS_NUMBER@,@ADVERT@));
-	accept;
-   } else {
-	bgp_community.add ((@AS_NUMBER,@NO_ADVERT@));
-	accept;
-   }
 filter export_bgp {
 # if a route is tagged with the export community string, then we will export it,
 # first stripping off the community strings (we don't want to leak internal Calico
@@ -46,26 +25,7 @@ if (@AS_NUMBER@,@ADVERT@) ~ bgp_community then
    }
 }
 
-# Configure synchronization between BIRD's routing tables and the
-# kernel.
-protocol kernel {
-  learn;          # Learn all alien routes from the kernel
-  persist;        # Don't remove routes on bird shutdown
-  scan time 2;    # Scan kernel routing table every 2 seconds
-  device routes;
-  import all;
-  export all;     # Default is export none
-}
-
-# Watch interface up/down events.
-protocol device {
-  scan time 2;    # Scan interfaces every 2 seconds
-}
-
-protocol direct {
-   debug all;
-   interface "-dummy0", "dummy1", "eth*", "em*";
-}
+# We need one of these per peer rr or other router in the network that we are peering with
 
 protocol bgp N1 {
   description "Connection to BGP peer";
